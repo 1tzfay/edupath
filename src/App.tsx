@@ -14,14 +14,12 @@ import EssayWriter from './pages/EssayWriter';
 import Leaderboard from './pages/Leaderboard';
 import CareerOrientation from './pages/CareerOrientation';
 import AdmissionGuide from './pages/AdmissionGuide';
-import USAdmissions from './pages/USAdmissions';
 import './index.css';
 
 const pageConfig: Record<string, { title: string; subtitle: string }> = {
   dashboard: { title: 'Главная', subtitle: 'Твой персональный путь' },
   career: { title: 'Профориентация', subtitle: 'Найди своё направление' },
   guide: { title: 'Гайд по поступлению', subtitle: 'От нуля до заявки — шаг за шагом' },
-  usa: { title: 'Поступление в США 🇺🇸', subtitle: 'Common App, SAT, Ivy League и финансовая помощь' },
   opportunities: { title: 'Возможности', subtitle: 'Хакатоны, олимпиады и программы' },
   lessons: { title: 'Уроки', subtitle: 'SAT, IELTS, ЕНТ, NUET и предметы' },
   ai: { title: 'ИИ-ассистент', subtitle: 'Персональный навигатор поступления' },
@@ -42,7 +40,6 @@ function AppContent() {
       case 'dashboard': return <Dashboard onNavigate={setCurrentPage} />;
       case 'career': return <CareerOrientation />;
       case 'guide': return <AdmissionGuide />;
-      case 'usa': return <USAdmissions />;
       case 'opportunities': return <Opportunities />;
       case 'lessons': return <Lessons />;
       case 'ai': return <AIAssistant />;

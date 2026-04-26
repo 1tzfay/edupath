@@ -53,8 +53,10 @@ const steps: GuideStep[] = [
 // ─── Country guides data ──────────────────────────────────────────────────────
 interface CountryGuide {
   flag: string; country: string; color: string; bg: string; border: string;
-  ielts: string; platform: string; deadline: string; scholarship: string;
+  ielts: string; ieltsLabel?: string; platform: string; deadline: string; scholarship: string;
   steps: string[]; tips: string[];
+  rounds?: { id: string; name: string; deadline: string; binding: boolean; desc: string }[];
+  topSchools?: { name: string; accept: string; note: string }[];
 }
 
 const countryGuides: CountryGuide[] = [
@@ -83,6 +85,41 @@ const countryGuides: CountryGuide[] = [
     scholarship: 'Квоты Россотрудничества — полностью бесплатно для граждан СНГ',
     steps: ['Зарегистрируйся на rs.gov.ru для получения квоты', 'Выбери до 6 вузов и программ', 'Пройди отбор (собеседование или тестирование)', 'Или подавай напрямую с ЕГЭ / внутренними экзаменами', 'Оформи студенческую визу'],
     tips: ['Квоты Россотрудничества — полностью бесплатное обучение', 'МГУ, МФТИ, ВШЭ принимают по внутренним вступительным', 'Срок подачи квот — февраль-март, не пропусти'] },
+  { flag: '🇺🇸', country: 'США (Common App)', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200',
+    ielts: 'Не обязателен', ieltsLabel: 'SAT / Test-optional',
+    platform: 'commonapp.org', deadline: 'ED: 1 ноября / RD: 1 января',
+    scholarship: 'Need-blind: MIT, Harvard, Yale, Princeton, Dartmouth. NYU Abu Dhabi — Full Ride',
+    steps: [
+      'Зарегистрируйся на commonapp.org (открывается 1 августа)',
+      'Заполни Activities Section — 10 активностей по 150 символов',
+      'Напиши Common App Essay — 650 слов, один текст для всех вузов',
+      'Напиши Supplemental Essays — отдельные для каждого вуза',
+      'Попроси рекомендации у 2 учителей + counselor через Common App',
+      'Подай SAT, если балл выше 75-й перцентили вуза',
+      'Оформи визу F-1 после получения оффера',
+    ],
+    tips: [
+      'Common App позволяет подать в 1000+ вузов одной заявкой',
+      'Early Decision повышает шансы на 10–15%, но оффер обязателен к принятию',
+      'Только 5 вузов need-blind для иностранцев — проверяй перед подачей',
+    ],
+    rounds: [
+      { id: 'ED', name: 'Early Decision', deadline: '1 ноября', binding: true, desc: 'Обязывающий — поступил, значит идёшь. Повышает шансы на 10–15%.' },
+      { id: 'EA', name: 'Early Action', deadline: '1–15 ноября', binding: false, desc: 'Необязывающий. Можно подавать в несколько EA вузов.' },
+      { id: 'RD', name: 'Regular Decision', deadline: '1 января', binding: false, desc: 'Стандартный раунд. Сравниваешь все офферы до 1 мая.' },
+    ],
+    topSchools: [
+      { name: 'MIT', accept: '4%', note: 'Engineering, CS, Science' },
+      { name: 'Harvard', accept: '4%', note: 'Liberal Arts, все направления' },
+      { name: 'Stanford', accept: '4%', note: 'CS, Business, Entrepreneurship' },
+      { name: 'Yale', accept: '5%', note: 'Law, Arts, Political Science' },
+      { name: 'Princeton', accept: '6%', note: 'Engineering, Public Policy' },
+      { name: 'Columbia', accept: '7%', note: 'Journalism, NYC' },
+      { name: 'UPenn', accept: '8%', note: 'Wharton Business, Engineering' },
+      { name: 'Cornell', accept: '11%', note: 'Hotel, Agriculture, CS' },
+      { name: 'CMU', accept: '15%', note: 'CS, Robotics, Drama' },
+    ],
+  },
 ];
 
 // ─── Topic guides ─────────────────────────────────────────────────────────────
@@ -292,7 +329,7 @@ const AdmissionGuide: React.FC = () => {
                   <div className="flex-1">
                     <p className="text-sm font-bold text-gray-900">{g.country}</p>
                     <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-[10px] text-gray-400">IELTS {g.ielts}</span>
+                      <span className="text-[10px] text-gray-400">{g.ieltsLabel ?? 'IELTS'} {g.ielts}</span>
                       <span className="text-[10px] text-gray-400">Дедлайн: {g.deadline}</span>
                     </div>
                   </div>
@@ -305,7 +342,7 @@ const AdmissionGuide: React.FC = () => {
                     <div className={`${g.bg} ${g.border} border rounded-xl p-3 grid grid-cols-3 gap-3 text-center`}>
                       <div>
                         <p className={`text-sm font-black ${g.color}`}>{g.ielts}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">IELTS</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{g.ieltsLabel ?? 'IELTS'}</p>
                       </div>
                       <div>
                         <p className={`text-xs font-bold ${g.color} leading-tight`}>{g.deadline}</p>
@@ -350,6 +387,43 @@ const AdmissionGuide: React.FC = () => {
                         ))}
                       </div>
                     </div>
+
+                    {/* US-specific: Rounds */}
+                    {g.rounds && (
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 mb-2">📅 Раунды подачи:</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {g.rounds.map((r, j) => (
+                            <div key={j} className={`rounded-xl p-2.5 text-center border ${
+                              r.binding ? 'bg-red-50 border-red-200' : j === 1 ? 'bg-orange-50 border-orange-200' : 'bg-blue-50 border-blue-200'
+                            }`}>
+                              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                r.binding ? 'bg-red-100 text-red-700' : j === 1 ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'
+                              }`}>{r.id}</span>
+                              <p className="text-[10px] font-semibold text-gray-800 mt-1.5 leading-tight">{r.name}</p>
+                              <p className="text-[10px] text-gray-500 mt-0.5">{r.deadline}</p>
+                              <p className="text-[10px] text-gray-600 mt-1 leading-tight">{r.desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* US-specific: Top schools */}
+                    {g.topSchools && (
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500 mb-2">🏛️ Топ вузы США:</p>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {g.topSchools.map((s, j) => (
+                            <div key={j} className={`${g.bg} ${g.border} border rounded-xl p-2 text-center`}>
+                              <p className="text-xs font-bold text-gray-900">{s.name}</p>
+                              <p className={`text-xs font-black ${g.color}`}>{s.accept}</p>
+                              <p className="text-[9px] text-gray-400 mt-0.5 leading-tight">{s.note}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
