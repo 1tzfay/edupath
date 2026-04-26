@@ -3,7 +3,7 @@ import { useApp, careerConfig } from '../context/AppContext';
 import {
   LayoutDashboard, Search, BookOpen, MessageSquare, Briefcase,
   Users, FileText, Trophy, Flame, Star, ChevronLeft, ChevronRight,
-  Compass, Map
+  Compass, Map, Flag
 } from 'lucide-react';
 
 interface NavItem {
@@ -20,6 +20,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { id: 'dashboard', label: 'Главная', icon: <LayoutDashboard size={18} /> },
       { id: 'career', label: 'Профориентация', icon: <Compass size={18} /> },
       { id: 'guide', label: 'Гайд', icon: <Map size={18} /> },
+      { id: 'usa', label: 'Поступление в США', icon: <Flag size={18} /> },
     ],
   },
   {
