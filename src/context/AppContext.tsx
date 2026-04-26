@@ -54,6 +54,19 @@ export interface Achievement {
   id: string; title: string; type: string; date: string; description: string; source?: string;
 }
 
+export interface CustomOpportunity {
+  id: string;
+  title: string;
+  type: 'hackathon' | 'olympiad' | 'competition' | 'research' | 'program';
+  deadline: string;
+  location: string;
+  description: string;
+  tags: string[];
+  prize?: string;
+  participated: boolean;
+  addedToPortfolio: boolean;
+}
+
 interface Friend {
   id: string; name: string; avatar: string; xp: number; streak: number; grade: string; rank: number;
 }
@@ -75,6 +88,7 @@ interface AppState {
     joinedClubs: string[];
     essayWritten: boolean;
   };
+  customOpportunities: CustomOpportunity[];
   friends: Friend[];
   notifications: number;
 }
@@ -89,6 +103,9 @@ interface AppContextType {
   addXP: (amount: number) => void;
   addAchievement: (achievement: Achievement) => void;
   markEssayWritten: () => void;
+  addCustomOpportunity: (opp: CustomOpportunity) => void;
+  removeCustomOpportunity: (id: string) => void;
+  markParticipated: (id: string) => void;
 }
 
 const defaultState: AppState = {
@@ -103,6 +120,7 @@ const defaultState: AppState = {
   },
   onboarding: { completed: false, interests: [], dreamDestination: '' },
   career: { path: null, testCompleted: false, joinedClubs: [], essayWritten: false },
+  customOpportunities: [],
   friends: [
     { id: '1', name: 'Алихан Бектуров', avatar: 'АБ', xp: 1850, streak: 14, grade: '11', rank: 1 },
     { id: '2', name: 'Дина Жаксыбекова', avatar: 'ДЖ', xp: 1620, streak: 10, grade: '12', rank: 2 },
@@ -176,10 +194,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const markEssayWritten = () =>
     setState(prev => ({ ...prev, career: { ...prev.career, essayWritten: true } }));
 
+  const addCustomOpportunity = (opp: CustomOpportunity) =>
+    setState(prev => ({ ...prev, customOpportunities: [opp, ...prev.customOpportunities] }));
+
+  const removeCustomOpportunity = (id: string) =>
+    setState(prev => ({ ...prev, customOpportunities: prev.customOpportunities.filter(o => o.id !== id) }));
+
+  const markParticipated = (id: string) =>
+    setState(prev => {
+      const opp = prev.customOpportunities.find(o => o.id === id);
+      if (!opp) return prev;
+      const newAchievement: Achievement = {
+        id: `opp-${id}`, title: opp.title, type: opp.type,
+        date: new Date().toISOString().slice(0, 7),
+        description: 'Личное мероприятие', source: 'competition',
+      };
+      return {
+        ...prev,
+        customOpportunities: prev.customOpportunities.map(o =>
+          o.id === id ? { ...o, participated: true, addedToPortfolio: true } : o
+        ),
+        user: {
+          ...prev.user,
+          xp: prev.user.xp + 80,
+          achievements: [...prev.user.achievements, newAchievement],
+        },
+      };
+    });
+
   return (
     <AppContext.Provider value={{
       state, completeOnboarding, setCareerPath, completeCareerTest,
       joinClub, leaveClub, addXP, addAchievement, markEssayWritten,
+      addCustomOpportunity, removeCustomOpportunity, markParticipated,
     }}>
       {children}
     </AppContext.Provider>
